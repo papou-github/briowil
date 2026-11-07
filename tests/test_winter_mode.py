@@ -26,3 +26,11 @@ class WinterModeTests(unittest.TestCase):
         for name in ("light.py", "sensor.py", "select.py", "number.py"):
             content = (ROOT / name).read_text()
             self.assertIn("self.coordinator.is_winter_mode", content, name)
+
+    def test_compatible_input_boolean_component_access(self):
+        content = (ROOT / "__init__.py").read_text()
+        self.assertIn("DATA_INSTANCES", content)
+        self.assertIn("input_boolean_component.async_add_entities", content)
+        self.assertIn("input_boolean_component.async_remove_entity", content)
+        self.assertNotIn("from homeassistant.components.input_boolean.const import DATA_INPUT_BOOLEAN", content)
+
