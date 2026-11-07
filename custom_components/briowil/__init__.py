@@ -8,11 +8,16 @@ An existing helper is reused without modification.
 
 import logging
 
-from homeassistant.components.input_boolean.const import DATA_INPUT_BOOLEAN
-from homeassistant.components.input_boolean.entity import InputBoolean
+# Home Assistant moved InputBoolean to entity.py in 2026.11.
+# 2026.10 and earlier still expose it from input_boolean.__init__.
+try:
+    from homeassistant.components.input_boolean.entity import InputBoolean
+except ImportError:
+    from homeassistant.components.input_boolean import InputBoolean
 from homeassistant.const import Platform
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.helpers.entity_component import DATA_INSTANCES
 
 from .const import DOMAIN, WINTER_MODE_ENTITY_ID
 from .coordinator import BrioWilCoordinator
@@ -41,11 +46,24 @@ async def _async_ensure_winter_helper(hass, coordinator):
     if cached is not None:
         config["initial"] = cached
 
+    # All maintained HA versions register the native input_boolean component
+    # in the shared EntityComponent registry. There is no cross-version
+    # guarantee that input_boolean exposes DATA_INPUT_BOOLEAN in const.py.
+    input_boolean_component = hass.data.get(DATA_INSTANCES, {}).get(
+        "input_boolean"
+    )
+    if input_boolean_component is None:
+        _LOGGER.warning(
+            "Unable to create %s: input_boolean component is not ready",
+            WINTER_MODE_ENTITY_ID,
+        )
+        return
+
     helper = InputBoolean.from_yaml(config)
-    # Avoid a stale registry entry on a Home Assistant restart. The entity
-    # remains a genuine input_boolean with turn_on/off and restore_state.
+    # Prevent a stale entity-registry entry for this temporary, recreated
+    # helper; the state is restored via Home Assistant's RestoreEntity.
     helper._attr_unique_id = None
-    await hass.data[DATA_INPUT_BOOLEAN].component.async_add_entities([helper])
+    await input_boolean_component.async_add_entities([helper])
     coordinator.created_winter_helper = True
     _LOGGER.info("Created %s for BrioWil", WINTER_MODE_ENTITY_ID)
 
@@ -96,8 +114,12 @@ async def async_unload_entry(hass, entry):
         return False
 
     if coordinator is not None and coordinator.created_winter_helper:
-        await hass.data[DATA_INPUT_BOOLEAN].component.async_remove_entity(
-            WINTER_MODE_ENTITY_ID
+        input_boolean_component = hass.data.get(DATA_INSTANCES, {}).get(
+            "input_boolean"
         )
+        if input_boolean_component is not None:
+            await input_boolean_component.async_remove_entity(
+                WINTER_MODE_ENTITY_ID
+            )
     hass.data[DOMAIN].pop(entry.entry_id, None)
     return True
