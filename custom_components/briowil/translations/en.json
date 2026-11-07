@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "BrioWil",
+        "description": "Configure BrioWil Server",
+        "data": {
+          "server_ip": "Server IP Address"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "BrioWil Options",
+        "data": {
+          "refresh_interval": "Refresh Frequency (seconds)"
+        }
+      }
+    }
+  }
+}
