@@ -1,13 +1,13 @@
 {
   "domain": "briowil",
   "name": "BrioWil",
-  "version": "1.0.0",
-  "config_flow": true,
-  "documentation": "https://github.com/papou-github/briowil",
-  "requirements": [],
   "codeowners": [
     "@papou-github"
   ],
+  "config_flow": true,
+  "documentation": "https://github.com/papou-github/briowil",
+  "iot_class": "local_polling",
   "issue_tracker": "https://github.com/papou-github/briowil/issues",
-  "iot_class": "local_polling"
+  "requirements": [],
+  "version": "1.0.0"
 }
