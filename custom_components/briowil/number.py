@@ -5,6 +5,7 @@ import logging
 from homeassistant.components.number import (
     NumberEntity,
 )
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     DOMAIN,
@@ -41,6 +42,7 @@ async def async_setup_entry(
 
 
 class BrioWilRefreshFrequency(
+    CoordinatorEntity,
     NumberEntity,
 ):
 
@@ -51,9 +53,9 @@ class BrioWilRefreshFrequency(
         coordinator,
     ):
 
+        super().__init__(coordinator)
         self.hass = hass
         self.entry = entry
-        self.coordinator = coordinator
 
         self._attr_name = (
             "Refresh Frequency"
