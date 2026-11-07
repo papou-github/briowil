@@ -93,6 +93,10 @@ class BrioWilRefreshFrequency(
         }
 
     @property
+    def available(self):
+        return not self.coordinator.is_winter_mode
+
+    @property
     def native_value(
         self,
     ):

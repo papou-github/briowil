@@ -13,6 +13,7 @@ from homeassistant.components.light import (
     LightEntityFeature,
 )
 
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -174,7 +175,8 @@ class BrioWilPoolLight(
     @property
     def available(self):
         return (
-            self.coordinator.last_update_success
+            not self.coordinator.is_winter_mode
+            and self.coordinator.last_update_success
             and self.coordinator.data is not None
         )
 
@@ -236,6 +238,8 @@ class BrioWilPoolLight(
         self,
         **kwargs,
     ):
+        if self.coordinator.is_winter_mode:
+            raise HomeAssistantError("BrioWil is unavailable during winter mode")
 
         #
         # Brightness changes are handled separately.
@@ -377,6 +381,8 @@ class BrioWilPoolLight(
         self,
         **kwargs,
     ):
+        if self.coordinator.is_winter_mode:
+            raise HomeAssistantError("BrioWil is unavailable during winter mode")
         _LOGGER.debug(
             "Turning light off"
         )

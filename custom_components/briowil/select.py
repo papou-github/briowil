@@ -8,6 +8,7 @@ from homeassistant.components.select import (
     SelectEntity,
 )
 
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
 )
@@ -124,6 +125,14 @@ class BrioWilEffectSpeed(
         }
 
     @property
+    def available(self):
+        return (
+            not self.coordinator.is_winter_mode
+            and self.coordinator.last_update_success
+            and self.coordinator.data is not None
+        )
+
+    @property
     def current_option(
         self,
     ):
@@ -143,6 +152,8 @@ class BrioWilEffectSpeed(
         self,
         option,
     ):
+        if self.coordinator.is_winter_mode:
+            raise HomeAssistantError("BrioWil is unavailable during winter mode")
 
         speed_number = EFFECT_SPEED_MAP[
             option

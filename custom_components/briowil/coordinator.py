@@ -16,6 +16,7 @@ from .const import (
     CONF_REFRESH_INTERVAL,
     DEFAULT_REFRESH_INTERVAL,
     COLOR_NUMBER_TO_NAME,
+    WINTER_MODE_ENTITY_ID,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -255,6 +256,7 @@ class BrioWilCoordinator(
     ):
 
         self.entry = entry
+        self.created_winter_helper = False
 
         self.server_ip = entry.data[
             "server_ip"
@@ -281,15 +283,20 @@ class BrioWilCoordinator(
             ),
         )
 
-    async def _async_update_data(
-        self,
-    ):
+    @property
+    def is_winter_mode(self):
+        """True when the Home Assistant winter-mode helper is on."""
+        return self.hass.states.is_state(WINTER_MODE_ENTITY_ID, "on")
 
-        _LOGGER.debug(
-            "Polling BrioWil status"
-        )
+    async def _async_update_data(self):
+        """Skip all socket activity during winter mode."""
+        if self.is_winter_mode:
+            _LOGGER.debug("Winter mode enabled: skipping BrioWil TCP poll")
+            return None
 
-        return await self.hass.async_add_executor_job(
-            get_pool_light_status,
-            self.server_ip,
+        _LOGGER.debug("Polling BrioWil status")
+        result = await self.hass.async_add_executor_job(
+            get_pool_light_status, self.server_ip
         )
+        # A toggle can occur while a network request is already in flight.
+        return None if self.is_winter_mode else result
