@@ -8,10 +8,13 @@
     "@papou-github"
   ],
   "config_flow": true,
+  "dependencies": [
+    "input_boolean"
+  ],
   "documentation": "https://github.com/papou-github/briowil",
   "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/papou-github/briowil/issues",
   "requirements": [],
-  "version": "1.0.1"
+  "version": "1.0.2"
 }

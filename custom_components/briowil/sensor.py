@@ -132,6 +132,14 @@ class BrioWilDiagnosticSensor(
         }
 
     @property
+    def available(self):
+        return (
+            not self.coordinator.is_winter_mode
+            and self.coordinator.last_update_success
+            and self.coordinator.data is not None
+        )
+
+    @property
     def native_value(
         self,
     ):

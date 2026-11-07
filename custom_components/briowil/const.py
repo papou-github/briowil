@@ -81,3 +81,5 @@ EFFECT_SPEED_NUMBER_TO_NAME = {
     value: key
     for key, value in EFFECT_SPEED_MAP.items()
 }
+# Optional global helper used to suspend all pool-controller communications.
+WINTER_MODE_ENTITY_ID = "input_boolean.mode_hivernage"

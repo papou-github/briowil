@@ -52,3 +52,18 @@ GitHub Actions runs Python compilation, JSON checks, basic protocol regression t
 ## License
 
 MIT. Community integration, not affiliated with the device manufacturer.
+
+## Winter mode (hivernage)
+
+The integration uses `input_boolean.mode_hivernage`. If it does not exist,
+BrioWil creates a native Home Assistant input_boolean entity at startup,
+initially off, with a snowflake icon. The automatically created entity is
+recreated after each restart and restores its previous state. It is not a
+UI-managed Helper stored in Home Assistant's shared helper storage. An existing
+helper with this entity ID is always reused untouched.
+
+When the helper is **on**, BrioWil makes no TCP status requests and its light,
+effect speed, refresh-frequency number and diagnostics are `unavailable`.
+Switching it **off** requests fresh status immediately. Hardware control
+commands are blocked while winter mode is on. This avoids repeated network
+errors when the pool controller is disconnected for winter.
